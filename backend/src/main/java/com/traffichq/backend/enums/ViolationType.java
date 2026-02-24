@@ -1,0 +1,15 @@
+package com.traffichq.backend.enums;
+
+public enum ViolationType {
+    ON_SIDEWALK,
+    DISABLED_SPACE_NO_PERMIT,
+    BLOCKING_CROSSWALK,
+    BLOCKING_RAMP,
+    DOUBLE_PARKED,
+    AT_BUS_STOP,
+    BLOCKING_DRIVEWAY,
+    NEAR_INTERSECTION,
+    LOADING_ZONE_UNAUTHORIZED,
+    NO_PARKING_AREA,
+    OTHER
+}

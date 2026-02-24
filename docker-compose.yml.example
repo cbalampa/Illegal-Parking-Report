@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: parking-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: <database.username>
+      POSTGRES_PASSWORD: <database.password>
+      POSTGRES_DB: <database.name>
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+
+volumes:
+  pgdata:
