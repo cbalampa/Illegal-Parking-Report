@@ -6,16 +6,16 @@ The project demonstrates a complete web development workflow using React, Spring
 
 ## 📑 Table of Contents
 
-- [Tech Stack](#tech-stack)
-- [Project Structure](#project-structure)
-- [Database Schema](#database-schema)
-- [Key Features](#key-features)
-- [Application Flow](#application-flow)
-- [Getting Started](#getting-started)
-- [API Overview](#api-overview)
-- [Preview](#preview)
-- [Roadmap / To Be Done](#roadmap--to-be-done)
-- [License](#license)
+- [Tech Stack](#%EF%B8%8F-tech-stack)
+- [Project Structure](#-project-structure)
+- [Database Schema](#%EF%B8%8F-database-schema)
+- [Key Features](#-key-features)
+- [Application Flow](#-application-flow)
+- [Getting Started](#-getting-started)
+- [API Overview](#-api-overview)
+- [Preview](#-preview)
+- [Roadmap / To Be Done](#-roadmap--to-be-done)
+- [License](#-license)
 
 ## 🛠️ Tech Stack
 
