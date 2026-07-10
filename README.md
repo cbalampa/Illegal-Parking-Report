@@ -1,10 +1,23 @@
 # Illegal Parking Report Web Application [![eng](https://img.shields.io/badge/lang-en-red.svg)](https://github.com/cbalampa/Illegal-Parking-Report/blob/main/README.md)
 
-A full-stack civic web application that allows citizens to report illegal parking violations and enables administrators to manage and resolve those reports.
+A full-stack civic web application that allows citizens to report illegal parking violations and enables administrators to manage and resolve those reports. 
 
----
+The project demonstrates a complete web development workflow using React, Spring Boot, PostgreSQL, authentication, REST APIs, and database-driven application design.
 
-## Tech Stack
+## 📑 Table of Contents
+
+- [Tech Stack](#tech-stack)
+- [Project Structure](#project-structure)
+- [Database Schema](#database-schema)
+- [Key Features](#key-features)
+- [Application Flow](#application-flow)
+- [Getting Started](#getting-started)
+- [API Overview](#api-overview)
+- [Preview](#preview)
+- [Roadmap / To Be Done](#roadmap--to-be-done)
+- [License](#license)
+
+## 🛠️ Tech Stack
 
 | Layer | Technology |
 |-------|-----------|
@@ -15,19 +28,18 @@ A full-stack civic web application that allows citizens to report illegal parkin
 | Auth | Spring Security + JWT (JJWT 0.12.6) |
 | Image Upload | Cloudinary |
 | Geocoding | Photon (Komoot) |
-| Containerization | Docker / Docker Compose |
+| Containerization | Docker Compose |
 
----
+## 📁 Project Structure
 
-## Project Structure
+<details open>
+<summary>Click to expand</summary>
 
-```
+```text
 ├── docker-compose.yml              # PostgreSQL container setup
 ├── init.sql                        # Database schema + seed data
-├── pom.xml                         # Maven dependencies
-├── application.properties          # Spring Boot configuration
 │
-├── src/main/java/com/traffichq/backend/
+├── backend/
 │   ├── config/                     # Security, CORS, JWT, Cloudinary config
 │   ├── controller/                 # REST controllers (Auth, Report, Vehicle)
 │   ├── dto/                        # Request/Response DTOs
@@ -35,9 +47,11 @@ A full-stack civic web application that allows citizens to report illegal parkin
 │   ├── enums/                      # UserRole, ReportStatus, ViolationType
 │   ├── repository/                 # Spring Data JPA repositories
 │   ├── security/                   # JWT filter, UserDetailsService
-│   └── service/                    # Business logic (Auth, Report, Cloudinary)
+│   ├── service/                    # Business logic (Auth, Report, Cloudinary)
+│   ├── pom.xml                     # Maven dependencies
+│   └── application.properties      # Spring Boot configuration
 │
-└── src/main/frontend/
+└── frontend
     ├── api/                        # Axios API clients (reportApi, userApi)
     ├── context/                    # AuthContext (JWT + user state)
     ├── components/
@@ -48,10 +62,10 @@ A full-stack civic web application that allows citizens to report illegal parkin
         ├── CitizenPage.jsx         # Report submission form
         └── AdminPage.jsx           # Admin dashboard
 ```
+</summary>
+</details>
 
----
-
-## Database Schema
+## 🗄️ Database Schema
 
 The application uses **PostgreSQL 16** with three core tables:
 
@@ -61,9 +75,32 @@ The application uses **PostgreSQL 16** with three core tables:
 
 Automatic `updated_at` timestamps are managed via PostgreSQL triggers.
 
----
+## ✨ Key Features
 
-## Getting Started
+**Citizens can:**
+- Register and log in securely
+- Submit parking violation reports with:
+    - an address (autocompleted via Photon geocoding)
+    - violation type
+    - optional photo
+    - and description
+- View confirmation upon successful submission
+
+**Admins can:**
+- View all submitted reports in a sortable, filterable table
+- See vehicle owner information if the license plate is registered
+- Update report statuses (`PENDING` → `IN_PROGRESS` → `FULFILLED` / `DECLINED`)
+- View photo evidence via Cloudinary-hosted URLs
+
+## 🔄 Application Flow
+
+1. A citizen creates an account and authenticates through the backend API.
+2. The backend issues a JWT token used for authenticated requests.
+3. The citizen submits a parking violation report through the React frontend.
+4. The backend validates the request, stores the report in PostgreSQL, and uploads images through Cloudinary.
+5. Administrators access the dashboard to review reports and update their status.
+
+## 🚀 Getting Started
 
 ### Prerequisites
 
@@ -74,25 +111,28 @@ Automatic `updated_at` timestamps are managed via PostgreSQL triggers.
 
 ### 1. Start the Database
 
-Copy the provided example file and fill in your values:
+Create a local copy of the compose file:
 
 ```bash
-cd backend
 cp docker-compose.yml.example docker-compose.yml
 ```
 
-```docker-compose.yml
-environment:
-  POSTGRES_USER: your_db_username
-  POSTGRES_PASSWORD: your_db_password
-  POSTGRES_DB: your_db_name
+Update the environment variables:
+
 ```
+POSTGRES_USER=your_username
+POSTGRES_PASSWORD=your_password
+POSTGRES_DB=your_database
+```
+
+Start the database:
 
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
-This will spin up a PostgreSQL 16 container on port `5432`, create the `parking_reports` database and run `init.sql` to initialize the schema and seed data.
+> [!NOTE]
+> This will spin up a container that starts PostgreSQL and executes `init.sql` to initialize the schema and seed data.
 
 ### 2. Configure the Application
 
@@ -129,36 +169,7 @@ npm install
 npm run dev
 ```
 
----
-
-## Default Credentials (Dev Only)
-
-| Role | Email | Password |
-|------|-------|----------|
-| Admin | `admin@traffichq.gov` | `admin123` |
-| Citizen | `john.doe@email.com` | *(see init.sql)* |
-| Citizen | `maria.smith@email.com` | *(see init.sql)* |
-
-> These are seeded by `init.sql` for testing purposes only. Passwords are bcrypt-hashed.
-
----
-
-## Key Features
-
-**Citizens can:**
-- Register and log in securely
-- Submit parking violation reports with an address (autocompleted via Photon geocoding), violation type, optional photo and description
-- View confirmation upon successful submission
-
-**Admins can:**
-- View all submitted reports in a sortable, filterable table
-- See vehicle owner information if the license plate is registered
-- Update report statuses (`PENDING` → `IN_PROGRESS` → `FULFILLED` / `DECLINED`)
-- View photo evidence via Cloudinary-hosted URLs
-
----
-
-## API Overview
+## 📡 API Overview
 
 | Method | Endpoint | Role | Description |
 |--------|----------|------|-------------|
@@ -170,22 +181,12 @@ npm run dev
 
 Authentication is handled via Bearer tokens in the `Authorization` header.
 
----
-
-## Environment Notes
-
-- `spring.jpa.hibernate.ddl-auto=validate` — Hibernate validates the schema against `init.sql` on startup (it does **not** auto-create or modify tables).
-- File uploads are capped at **10MB** per file and per request.
-- The Photon geocoding API requires no API key and biases results toward the user's typed input with a 350ms debounce.
-
----
-
-## Preview
+## 🔎 Preview
 <p align="center">
 <img width="1366" height="581" alt="Parking-Report-Admin-Dashboard-Preview" src="https://github.com/user-attachments/assets/d3434ef2-316d-47e8-b928-13af127202b8" />
 </p>
 
-## Roadmap / To Be Done
+## 📌 Roadmap / To Be Done
 
 Features planned or considered for future iterations:
 
@@ -197,4 +198,6 @@ Features planned or considered for future iterations:
 - **Pagination & search** — Add server-side pagination and keyword/plate search to the admin reports table for scalability
 - **Push / in-app notifications** — Notify citizens in real time when the status of one of their reports changes
 
----
+## 📄 License
+
+This project is licensed under the MIT License.
