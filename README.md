@@ -36,10 +36,15 @@ The project demonstrates a complete web development workflow using React, Spring
 <summary>Click to expand</summary>
 
 ```text
-├── docker-compose.yml              # PostgreSQL container setup
+├── docker-compose.yml.example      # Multi-container setup
 ├── init.sql                        # Database schema + seed data
 │
+├── env/
+│   ├── backend.env.example         # Backend environment variables
+│   └── postgres.env.example        # PostgreSQL environment variables
+│
 ├── backend/
+│   ├── Dockerfile                  # Backend container image
 │   ├── config/                     # Security, CORS, JWT, Cloudinary config
 │   ├── controller/                 # REST controllers (Auth, Report, Vehicle)
 │   ├── dto/                        # Request/Response DTOs
@@ -52,6 +57,7 @@ The project demonstrates a complete web development workflow using React, Spring
 │   └── application.properties      # Spring Boot configuration
 │
 └── frontend
+    ├── Dockerfile                  # Frontend container image
     ├── api/                        # Axios API clients (reportApi, userApi)
     ├── context/                    # AuthContext (JWT + user state)
     ├── components/
@@ -104,12 +110,12 @@ Automatic `updated_at` timestamps are managed via PostgreSQL triggers.
 
 ### Prerequisites
 
-- Docker & Docker Compose
-- Java 21
-- Maven 3.9+
-- Node.js 20+ (for the frontend)
+- Docker
+  - [Installation instructions](https://docs.docker.com/desktop/)
+- A Cloudinary setup
+  - [Create a Cloudinary account](https://cloudinary.com/)
 
-### 1. Start the Database
+### 1. Configure Docker Compose
 
 Create a local copy of the compose file:
 
@@ -117,57 +123,101 @@ Create a local copy of the compose file:
 cp docker-compose.yml.example docker-compose.yml
 ```
 
-Update the environment variables:
+### 2. Configure Environment Variables
+
+Create the required environment files from the provided examples:
+
+```bash
+cp env/postgres.env.example env/postgres.env
+cp env/backend.env.example env/backend.env
+```
+Update the values in `env/postgres.env`:
 
 ```
-POSTGRES_USER=your_username
-POSTGRES_PASSWORD=your_password
-POSTGRES_DB=your_database
+POSTGRES_DB=<postgres.database>
+POSTGRES_USER=<postgres.username>
+POSTGRES_PASSWORD=<postgres.password>
 ```
 
-Start the database:
+Update the values in `env/backend.env`:
+
+```
+DB_NAME=<database.name>
+DB_HOST=<database.host>
+
+DB_USERNAME=<database.username>
+DB_PASSWORD=<database.password>
+
+JWT_SECRET=<jwt.secret>
+
+CLOUDINARY_CLOUD_NAME=<cloudinary.cloud.name>
+CLOUDINARY_API_KEY=<cloudinary.api.key>
+CLOUDINARY_API_SECRET=<cloudinary.api.secret>
+```
+
+> [!NOTE]
+> `DB_USERNAME`, `DB_PASSWORD`, and `DB_NAME` should match the corresponding PostgreSQL values defined in `postgres.env`.
+
+#### Generate a JWT Secret
+
+You can generate a random JWT secret using openssl: 
+
+```bash
+openssl rand -base64 64
+```
+
+Alternatively, you can use any sufficiently long randomized string as your `JWT_SECRET`.
+
+#### Configure Cloudinary
+
+Create a Cloudinary account and project, then retrieve the following values from your Cloudinary dashboard:
+- Cloud Name
+- API Key
+- API Secret
+
+Add them to `env/backend.env`.
+
+### 3. Start the Containers
+
+Start the application with Docker Compose:
 
 ```bash
 docker compose up -d
 ```
 
 > [!NOTE]
-> This will spin up a container that starts PostgreSQL and executes `init.sql` to initialize the schema and seed data.
+> Docker Compose will start the PostgreSQL, backend, and frontend containers. The PostgreSQL container executes `init.sql` to initialize the database schema and seed data.
 
-### 2. Configure the Application
+The application will be available at:
 
-Copy the provided example file and fill in your values:
+- Frontend: `http://localhost:5173`
+- Backend API: `http://localhost:8080`
+
+#### Demo Administrator Account
+
+The database is initialized with a demo administrator account:
+
+```text
+Email:    admin@traffichq.gov
+Password: admin123
+```
+
+### 4. Stop the Containers
+
+To stop the application:
 
 ```bash
-cd backend
-cp .env.example .env
+docker compose down
 ```
 
-```env
-DB_USERNAME=your_db_username
-DB_PASSWORD=your_db_password
-DB_NAME=your_db_name
-JWT_SECRET=your_jwt_secret
-CLOUDINARY_CLOUD_NAME=your_cloud_name
-CLOUDINARY_API_KEY=your_api_key
-CLOUDINARY_API_SECRET=your_api_secret
-```
-
-### 3. Run the Backend
+To stop the containers and remove the PostgreSQL volume, forcing the database to be initialized again on the next startup:
 
 ```bash
-./mvnw spring-boot:run
+docker compose down -v
 ```
 
-The API will be available at `http://localhost:8080`.
-
-### 4. Run the Frontend
-
-```bash
-cd frontend
-npm install
-npm run dev
-```
+> [!WARNING]
+> Removing the PostgreSQL volume will permanently delete the database data stored in that volume.
 
 ## 📡 API Overview
 
@@ -184,6 +234,10 @@ Authentication is handled via Bearer tokens in the `Authorization` header.
 ## 🔎 Preview
 <p align="center">
 <img width="1366" height="581" alt="Parking-Report-Admin-Dashboard-Preview" src="https://github.com/user-attachments/assets/d3434ef2-316d-47e8-b928-13af127202b8" />
+</p>
+
+<p align="center">
+<img width="1347" height="610" alt="Parking-Report-User-Dashboard-Preview" src="https://github.com/user-attachments/assets/067e83a1-fa26-4a3c-92fc-a496b8b1c455" />
 </p>
 
 ## 📌 Roadmap / To Be Done
