@@ -1,16 +1,30 @@
 services:
   postgres:
-    image: postgres:16
-    container_name: parking-postgres
+    image: "postgres:16"
     ports:
       - "5432:5432"
-    environment:
-      POSTGRES_USER: <database.username>
-      POSTGRES_PASSWORD: <database.password>
-      POSTGRES_DB: <database.name>
+    env_file:
+      - ./env/postgres.env
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8080"
+    env_file:
+      - ./env/backend.env
+    depends_on:
+      - postgres
+  frontend:
+    build: ./frontend
+    ports:
+      - "5173:5173"
+    env_file:
+      - ./env/frontend.env
+    depends_on:
+      - backend
+
 
 volumes:
   pgdata:
